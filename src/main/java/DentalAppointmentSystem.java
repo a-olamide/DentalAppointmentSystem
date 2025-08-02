@@ -1,3 +1,6 @@
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import dto.AppointmentReportDto;
 import model.Appointment;
 import model.Patient;
@@ -8,9 +11,13 @@ import service.DentalAppointmentService;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Scanner;
 
 public class DentalAppointmentSystem {
-    public static void main(String[] args) {
+    public static void main(String[] args) throws JsonProcessingException {
+        Scanner scanner = new Scanner(System.in);
+
+
         AppointmentRepository repo = AppointmentRepositoryImpl.getInstance();
         DentalAppointmentService system = new DentalAppointmentService(repo);
 
@@ -28,13 +35,39 @@ public class DentalAppointmentSystem {
         Appointment appointment3 = new Appointment("3", LocalDateTime.of(2025,5,4,14,0,0),patient3);
         Appointment appointment4 = new Appointment("4", LocalDateTime.of(2025,3,16,11,15,0),patient4);
 
+
         system.addAppointment(appointment1);
         system.addAppointment(appointment2);
         system.addAppointment(appointment3);
         system.addAppointment(appointment4);
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.registerModule(new JavaTimeModule());
 
-        List<AppointmentReportDto> report = system.generateAppointmentsReport(2025,1);
+        System.out.println("Welcome to the Dental Appointment Reporting System!");
+        System.out.println("Type 'quit' at any time to exit.\n");
 
+        while (true) {
+            System.out.print("Enter year (e.g., 2025): ");
+            String yearInput = scanner.next();
+            if (yearInput.equalsIgnoreCase("quit")) break;
+
+            System.out.print("Enter quarter (1 to 4): ");
+            String quarterInput = scanner.next();
+            if (quarterInput.equalsIgnoreCase("quit")) break;
+
+            int year = Integer.parseInt(yearInput);
+            int quarter = Integer.parseInt(quarterInput);
+
+            if (quarter < 1 || quarter > 4) {
+                System.out.println("Quarter must be between 1 and 4.\n");
+                continue;
+            }
+            List<AppointmentReportDto> report = system.generateAppointmentsReport(year, quarter);
+            String json = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(report);
+            System.out.println("\nAppointments Report (Quarter " + quarter + ", " + year + "):");
+            System.out.println(json + "\n");
+        }
+        System.out.println("Goodbye!");
     }
 }
 
