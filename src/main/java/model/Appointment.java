@@ -5,10 +5,15 @@ import java.time.LocalDateTime;
 public class Appointment {
     private String appointmentID;
     private LocalDateTime appointmentDate;
+    private final Patient patient;
 
-    public Appointment(String appointmentID, LocalDateTime appointmentDate) {
+    public Appointment(String appointmentID, LocalDateTime appointmentDate, Patient patient) {
         this.appointmentID = appointmentID;
         this.appointmentDate = appointmentDate;
+        this.patient = patient;
+    }
+    public Patient getPatient() {
+        return patient;
     }
 
     public String getAppointmentID() {
